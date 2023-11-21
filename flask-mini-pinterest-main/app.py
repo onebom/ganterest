@@ -8,23 +8,35 @@ from models import db, User, Pin
 from helpers import create_pin
 # blob_storage = BlobStorage()
 
+import os
+
 # Blueprints
 from api.api import api
+
 
 app = Flask(__name__)
 # load config from the config file we created earlier 
 app.config.from_object('config')
 app.register_blueprint(api)
 
-# db.init_app(app)
-migrate = Migrate(app, db)
-# db.create_all(app)
+# 현재있는 파일의 디렉토리 절대경로
+basdir = os.path.abspath(os.path.dirname(__file__))
+# basdir 경로안에 DB파일 만들기
+dbfile = os.path.join(basdir, 'db.sqlite')
 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + dbfile
+app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'jqiowejrojzxcovnklqnweiorjqwoijroi'
+
+with app.app_context():
+    db.init_app(app)
+    migrate = Migrate(app, db)
+    # db.create_all()
 
 @app.route('/')
 def index():
-    # images = list(reversed(Pin.query.all()))
-    images=[]
+    images = list(reversed(Pin.query.all()))
     return render_template('index.html', images=images)
 
 @app.route('/search', methods=['POST'])
