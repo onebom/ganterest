@@ -50,7 +50,7 @@ class PinDetail(Base):
     id = db.Column(db.Integer, primary_key=True)
     pin_id = db.Column(db.Integer, db.ForeignKey('pin.id'))
     caption = db.Column(db.String(140))
-    tags = db.Column(postgresql.ARRAY(db.String))
+    tags = db.Column(db.String(140))
     pin = db.relationship('Pin', foreign_keys=[pin_id],
                         backref=db.backref('pin_detail', lazy='dynamic', cascade="all,delete"))
 

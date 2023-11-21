@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, flash, redirect, url_for, ses
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_migrate import Migrate
 from functools import wraps
+from sqlalchemy import create_engine
 
 from models import db, User, Pin
 # from azures.storage import BlobStorage
@@ -13,26 +14,22 @@ import os
 # Blueprints
 from api.api import api
 
-
 app = Flask(__name__)
 # load config from the config file we created earlier 
 app.config.from_object('config')
 app.register_blueprint(api)
 
-# 현재있는 파일의 디렉토리 절대경로
-basdir = os.path.abspath(os.path.dirname(__file__))
-# basdir 경로안에 DB파일 만들기
-dbfile = os.path.join(basdir, 'db.sqlite')
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + dbfile
+##DB Setting##
+# engine = db.create_engine('mysql+pymysql://root:1205@192.168.25.128:33306/mydb')
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:1205@192.168.25.128:33306/mydb"
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'jqiowejrojzxcovnklqnweiorjqwoijroi'
+
 
 with app.app_context():
     db.init_app(app)
     migrate = Migrate(app, db)
-    # db.create_all()
+    db.create_all()
 
 @app.route('/')
 def index():
@@ -190,8 +187,9 @@ def profile(username):
 @app.route("/upload")
 @login_required
 def photos():
-    images = blob_storage.get_blob_items()
-    return render_template('upload.html', images=images)
+    # images = blob_storage.get_blob_items()    
+    # return render_template('upload.html', images=images)
+    return render_template('upload.html')
 
 @app.route("/upload-photos", methods=["POST"])
 @login_required
